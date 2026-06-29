@@ -1,0 +1,5 @@
+service:
+  name: Jenkins Demo App
+  identifier: Jenkins_Demo_App
+  orgIdentifier: default
+  projectIdentifier: Cint
