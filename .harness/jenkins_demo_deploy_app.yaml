@@ -1,0 +1,48 @@
+pipeline:
+  name: Jenkins Demo - Deploy App
+  identifier: jenkins_demo_deploy_app
+  projectIdentifier: Cint
+  orgIdentifier: default
+  tags:
+    purpose: demo
+    pattern: centralized-helm-chart
+    migration: jenkins-to-harness
+  description: Demo pipeline showing centralized Helm chart pattern from Jenkins migration
+  stages:
+    - stage:
+        name: Deploy
+        identifier: deploy
+        description: Deploy using centralized Helm chart with environment-specific values
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          service:
+            serviceRef: Jenkins_Demo_App
+          environment:
+            environmentRef: <+input>
+            deployToAll: false
+            infrastructureDefinitions: <+input>
+            environmentInputs: <+input>
+          execution:
+            steps:
+              - step:
+                  type: HelmDeploy
+                  name: Helm Deploy
+                  identifier: helm_deploy
+                  spec:
+                    skipDryRun: false
+                  timeout: 10m
+            rollbackSteps:
+              - step:
+                  type: HelmRollback
+                  name: Helm Rollback
+                  identifier: helm_rollback
+                  spec: {}
+                  timeout: 10m
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
