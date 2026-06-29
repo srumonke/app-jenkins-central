@@ -1,0 +1,69 @@
+service:
+  name: Demo App
+  identifier: demo_app
+  tags: {}
+  serviceDefinition:
+    type: Kubernetes
+    spec:
+      manifests:
+        - manifest:
+            identifier: helm_chart
+            type: HelmChart
+            spec:
+              store:
+                type: Github
+                spec:
+                  connectorRef: account.github_connector
+                  gitFetchType: Branch
+                  branch: main
+                  folderPath: /
+                  repoName: <YOUR_ORG>/app-jenkins-central
+              chartName: app-chart
+              chartVersion: ""
+              helmVersion: V3
+              skipResourceVersioning: false
+              commandFlags:
+                - commandType: Template
+                  flag: "--include-crds"
+        - manifest:
+            identifier: values_base
+            type: Values
+            spec:
+              store:
+                type: Github
+                spec:
+                  connectorRef: account.github_connector
+                  gitFetchType: Branch
+                  branch: main
+                  repoName: <YOUR_ORG>/app-jenkins-ref-app
+                  folderPath: helm-values
+              valuesPaths:
+                - values.yaml
+        - manifest:
+            identifier: values_env
+            type: Values
+            spec:
+              store:
+                type: Github
+                spec:
+                  connectorRef: account.github_connector
+                  gitFetchType: Branch
+                  branch: main
+                  repoName: <YOUR_ORG>/app-jenkins-ref-app
+                  folderPath: helm-values
+              valuesPaths:
+                - values-<+env.name>.yaml
+      variables:
+        - name: image_tag
+          type: String
+          value: <+artifact.tag>
+      artifacts:
+        primary:
+          primaryArtifactRef: nginx_image
+          sources:
+            - spec:
+                connectorRef: account.dockerhub
+                imagePath: library/nginx
+                tag: <+input>
+              identifier: nginx_image
+              type: DockerRegistry
