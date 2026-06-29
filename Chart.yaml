@@ -1,0 +1,5 @@
+apiVersion: v2
+name: app-chart
+description: Shared Helm chart for all apps
+type: application
+version: 1.0.0

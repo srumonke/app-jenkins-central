@@ -1,0 +1,11 @@
+# Chart defaults
+global:
+  name: myapp
+  namespace: default
+  image:
+    tag: latest
+
+app:
+  replicas: 1
+  image: nginx
+  port: 80
