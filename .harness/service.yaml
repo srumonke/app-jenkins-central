@@ -3,3 +3,53 @@ service:
   identifier: Jenkins_Demo_App
   orgIdentifier: default
   projectIdentifier: Cint
+  serviceDefinition:
+    spec:
+      manifests:
+        - manifest:
+            identifier: appchart
+            type: HelmChart
+            spec:
+              store:
+                type: Github
+                spec:
+                  connectorRef: account.github_srumonke
+                  gitFetchType: Branch
+                  folderPath: /
+                  repoName: app-jenkins-central
+                  branch: main
+              subChartPath: ""
+              optionalValuesYaml: false
+              skipResourceVersioning: false
+              enableDeclarativeRollback: false
+              helmVersion: V3
+              fetchHelmChartMetadata: false
+        - manifest:
+            identifier: values_base
+            type: Values
+            spec:
+              store:
+                type: Github
+                spec:
+                  connectorRef: account.github_srumonke
+                  gitFetchType: Branch
+                  paths:
+                    - helm-values/values.yaml
+                  repoName: app-jenkins-ref-app
+                  branch: main
+              optionalValuesYaml: false
+        - manifest:
+            identifier: values_env
+            type: Values
+            spec:
+              store:
+                type: Github
+                spec:
+                  connectorRef: account.github_srumonke
+                  gitFetchType: Branch
+                  paths:
+                    - helm-values/values-<+env.name>.yaml
+                  repoName: app-jenkins-ref-app
+                  branch: main
+              optionalValuesYaml: false
+    type: Kubernetes
