@@ -1,0 +1,61 @@
+service:
+  name: Jenkins Demo App
+  identifier: jenkins_demo_app
+  description: Demo app showcasing centralized Helm chart pattern migrated from Jenkins
+  tags:
+    purpose: demo
+    pattern: centralized-helm-chart
+    migration: jenkins-to-harness
+  serviceDefinition:
+    type: Kubernetes
+    spec:
+      manifests:
+        - manifest:
+            identifier: helm_chart
+            type: HelmChart
+            spec:
+              store:
+                type: Github
+                spec:
+                  connectorRef: account.github_srumonke
+                  gitFetchType: Branch
+                  branch: main
+                  folderPath: /
+                  repoName: app-jenkins-central
+              chartName: app-chart
+              chartVersion: ""
+              helmVersion: V3
+              skipResourceVersioning: false
+        - manifest:
+            identifier: values_base
+            type: Values
+            spec:
+              store:
+                type: Github
+                spec:
+                  connectorRef: account.github_srumonke
+                  gitFetchType: Branch
+                  branch: main
+                  repoName: app-jenkins-ref-app
+                  folderPath: helm-values
+              valuesPaths:
+                - values.yaml
+        - manifest:
+            identifier: values_env
+            type: Values
+            spec:
+              store:
+                type: Github
+                spec:
+                  connectorRef: account.github_srumonke
+                  gitFetchType: Branch
+                  branch: main
+                  repoName: app-jenkins-ref-app
+                  folderPath: helm-values
+              valuesPaths:
+                - values-<+env.name>.yaml
+      variables:
+        - name: image_tag
+          type: String
+          value: <+input>
+          description: Docker image tag to deploy
